@@ -1,0 +1,52 @@
+Sub SubmitLoanApplication()
+    Dim HTTP As Object
+    Dim URL As String
+    Dim Payload As String
+    Dim Response As String
+    Dim age As Long, employ As Long, address As Long
+    Dim debtinc As Double, creddebt As Double, othdebt As Double
+    
+    ' Read input values from Excel cells
+    age = Range("A2").Value
+    employ = Range("B2").Value
+    address = Range("C2").Value
+    debtinc = Range("D2").Value
+    creddebt = Range("E2").Value
+    othdebt = Range("F2").Value
+    
+    ' FastAPI endpoint URL (local or hosted on Render)
+    URL = "http://127.0.0.1:8000/predict"
+    
+    ' Construct JSON payload
+    Payload = "{""AGE"":" & age & "," & _
+              """EMPLOY"":" & employ & "," & _
+              """ADDRESS"":" & address & "," & _
+              """DEBTINC"": " & debtinc & "," & _
+              """CREDDEBT"":" & creddebt & "," & _
+              """OTHDEBT"":" & othdebt & "}"
+              
+    Set HTTP = CreateObject("MSXML2.ServerXMLHTTP.6.0")
+    
+    On Error GoTo ErrorHandler
+    HTTP.Open "POST", URL, False
+    HTTP.setRequestHeader "Content-Type", "application/json"
+    HTTP.send Payload
+    
+    If HTTP.Status = 200 Then
+        Response = HTTP.responseText
+        ' Simple parsing to extract predicted_probability_default
+        ' Alternatively, use VBA JSON parsers. Here we display raw JSON or parsed probability.
+        Range("G2").Value = Response
+        MsgBox "Prediction received successfully!", vbInformation, "Success"
+    Else
+        MsgBox "Server Error: " & HTTP.StatusText, vbCritical, "API Error"
+    End If
+    Exit Sub
+
+ErrorHandler:
+    MsgBox "Could not connect to FastAPI server. Ensure it is running.", vbCritical, "Connection Error"
+End Sub
+
+Private Sub Worksheet_SelectionChange(ByVal Target As Range)
+
+End Sub

@@ -1,0 +1,26 @@
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+import joblib
+
+train = pd.read_csv("BANK LOAN.csv")
+
+X = train.drop(
+    columns=["SN","DEFAULTER"]
+)
+
+y = train["DEFAULTER"]
+
+rf = RandomForestClassifier(
+    n_estimators=500,
+    random_state=42
+)
+
+rf.fit(X,y)
+
+joblib.dump(
+    rf,
+    "rf_bankloan.pkl"
+)
+
+print("Model Saved")
+``
